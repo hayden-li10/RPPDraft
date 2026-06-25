@@ -11,10 +11,6 @@ namespace ElsaServer.SchedulingEngine.Workflows
         protected override void Build(IWorkflowBuilder builder)
         {
             builder.Name = "Scheduling RPP Pipeline";
-            var timerTrigger = new Elsa.Scheduling.Activities.Timer(TimeSpan.FromHours(1))
-            {
-                CanStartWorkflow = true
-            };
 
             var payloadList = builder.WithVariable<List<ModulePayload>>("payloadList", new List<ModulePayload>());
 
@@ -51,7 +47,6 @@ namespace ElsaServer.SchedulingEngine.Workflows
             {
                 Activities =
             {
-                timerTrigger,
                 shiftBaselineGeneration,
                 assetAllocation,
                 enrichmentA,
@@ -60,7 +55,6 @@ namespace ElsaServer.SchedulingEngine.Workflows
             },
                 Connections =
             {
-                new(timerTrigger, shiftBaselineGeneration),
                 new(shiftBaselineGeneration, enrichmentA),
                 new(enrichmentA, enrichmentB),
                 new(enrichmentB, assetAllocation),

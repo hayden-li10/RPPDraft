@@ -2,6 +2,10 @@ using Elsa.Extensions;
 using Elsa.Persistence.EFCore.Extensions;
 using Elsa.Persistence.EFCore.Modules.Management;
 using Elsa.Persistence.EFCore.Modules.Runtime;
+using Elsa.Persistence.MongoDb;
+using Elsa.Persistence.MongoDb.Extensions;
+using Elsa.Persistence.MongoDb.Modules.Management;
+using Elsa.Persistence.MongoDb.Modules.Runtime;
 using Elsa.Workflows;
 using ElsaServer.SchedulingEngine.Workflows;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +16,8 @@ builder.WebHost.UseStaticWebAssets();
 
 var services = builder.Services;
 var configuration = builder.Configuration;
+var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb")
+    ?? throw new InvalidOperationException("Connection string 'MongoDb' not found.");
 
 services
     .AddElsa(elsa => elsa
@@ -21,8 +27,9 @@ services
             identity.UseAdminUserProvider();
         })
         .UseDefaultAuthentication()
-        .UseWorkflowManagement(management => management.UseEntityFrameworkCore(ef => ef.UseSqlite()))
-        .UseWorkflowRuntime(runtime => runtime.UseEntityFrameworkCore(ef => ef.UseSqlite()))
+        .UseMongoDb(mongoConnectionString)
+        .UseWorkflowManagement(management => management.UseMongoDb())// Configure workflow management (definitions, instances)
+        .UseWorkflowRuntime(runtime => runtime.UseMongoDb())// Configure workflow runtime (bookmarks, inbox, execution logs)
         .UseScheduling()
         .UseJavaScript()
         .UseLiquid()

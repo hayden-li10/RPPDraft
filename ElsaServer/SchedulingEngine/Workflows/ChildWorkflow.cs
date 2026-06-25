@@ -1,5 +1,6 @@
 ﻿using Elsa.Extensions;
 using Elsa.Workflows;
+using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Management.Activities.SetOutput;
@@ -29,6 +30,9 @@ namespace ElsaServer.SchedulingEngine.Workflows
                 return $"Child received message: {jsonString}";
             });
 
+            var logNodeInfo = new WriteLine(context =>
+               $"[CHILD] Executing on Machine (Pod): {Environment.MachineName} | Background Thread: {Thread.CurrentThread.ManagedThreadId}");
+
             var enrichment1 = new Enrichment()
             {
                 Inputs = new Input<List<ModulePayload>>(context => context.GetInput<List<ModulePayload>>("ParentMessage") ?? new List<ModulePayload>()),
@@ -53,12 +57,14 @@ namespace ElsaServer.SchedulingEngine.Workflows
                 Activities =
                 {
                     writeline,
+                    logNodeInfo,
                     enrichment1,
                     enrichment2,
                     assetAllocation
                 },
                 Connections = 
                 {
+                    new (logNodeInfo, writeline),
                     new (writeline, enrichment1),
                     new (enrichment1, enrichment2),
                     new (enrichment2, assetAllocation),
