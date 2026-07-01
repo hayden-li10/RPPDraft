@@ -1,7 +1,6 @@
 ﻿using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Runtime.Activities;
-using ElsaServer.SchedulingEngine.Workflows;
 using SchedulingEngine.BusinessEngine.Models;
 using System.Text.Json;
 namespace ElsaServer.SchedulingEngine.Workflows
@@ -39,50 +38,71 @@ namespace ElsaServer.SchedulingEngine.Workflows
             var chunk1 = allPayloads.Take(3).ToList();
             var chunk2 = allPayloads.Skip(3).Take(3).ToList();
 
+            var fanOut = new Elsa.Workflows.Activities.Parallel
+            {
+                Activities =
+                {
+                    new DispatchWorkflow
+                    {
+                        WorkflowDefinitionId = new(nameof(Child)),
+                        Input = new(new Dictionary<string, object> { ["ParentMessage"] = chunk1 }),
+                        WaitForCompletion = new(true),
+                        Result = new(childOutput1)
+                    },
+                    new DispatchWorkflow
+                    {
+                        WorkflowDefinitionId = new(nameof(Child)),
+                        Input = new(new Dictionary<string, object> { ["ParentMessage"] = chunk2 }),
+                        WaitForCompletion = new(true),
+                        Result = new(childOutput2)
+                    }
+                }
+            };
+
+            var fanIn = new Inline(context =>
+            {
+                var dict1 = childOutput1.Get(context) ?? new Dictionary<string, object>();
+                var dict2 = childOutput2.Get(context) ?? new Dictionary<string, object>();
+                var listA = ExtractPayloads(dict1);
+                var listB = ExtractPayloads(dict2);
+                var mergedList = listA.Concat(listB).ToList();
+                var testNumbersA = listA.Select(p => p.TestNumber?.ToString() ?? "null");
+                var testNumbersB = listB.Select(p => p.TestNumber?.ToString() ?? "null");
+                var combinedNumbers = mergedList.Select(p => p.TestNumber?.ToString() ?? "null");
+                System.Console.WriteLine($"[PARENT] Both children finished!");
+                System.Console.WriteLine($"- Output A Test Numbers: [{string.Join(", ", testNumbersA)}]");
+                System.Console.WriteLine($"- Output B Test Numbers: [{string.Join(", ", testNumbersB)}]");
+                System.Console.WriteLine($"- Combined Test Numbers: [{string.Join(", ", combinedNumbers)}]");
+                return ValueTask.CompletedTask;
+            });
+
             builder.Root = new Sequence
             {
                 Activities =
             {
-                new Elsa.Workflows.Activities.Parallel
-                {
-                    Activities =
-                    {
-                        new DispatchWorkflow
-                        {
-                            WorkflowDefinitionId = new(nameof(Child)),
-                            Input = new(new Dictionary<string, object> { ["ParentMessage"] = chunk1 }),
-                            WaitForCompletion = new(true),
-                            Result = new(childOutput1)
-                        },
-                        new DispatchWorkflow
-                        {
-                            WorkflowDefinitionId = new(nameof(Child)),
-                            Input = new(new Dictionary<string, object> { ["ParentMessage"] = chunk2 }),
-                            WaitForCompletion = new(true),
-                            Result = new(childOutput2)
-                        }
-                    }
-                },
-                 new WriteLine(context =>
-                    {
-                        var dict1 = childOutput1.Get(context) ?? new Dictionary<string, object>();
-                        var dict2 = childOutput2.Get(context) ?? new Dictionary<string, object>();
-
-                        var listA = ExtractPayloads(dict1);
-                        var listB = ExtractPayloads(dict2);
-
-                        var mergedList = listA.Concat(listB).ToList();
-                        var testNumbersA = listA.Select(p => p.TestNumber?.ToString() ?? "null");
-                        var testNumbersB = listB.Select(p => p.TestNumber?.ToString() ?? "null");
-                        var combinedNumbers = mergedList.Select(p => p.TestNumber?.ToString() ?? "null");
-
-                        return $"[PARENT] Both children finished!\n" +
-                               $"- Output A Test Numbers: [{string.Join(", ", testNumbersA)}]\n" +
-                               $"- Output B Test Numbers: [{string.Join(", ", testNumbersB)}]\n" +
-                               $"- Combined Master Test Numbers: [{string.Join(", ", combinedNumbers)}]\n";
-                    })
-                }
+                fanOut,
+                fanIn
+            }
             };
+
+            //!!!!!!IMPORTANT: Flowchart doesn't support the Parallel activity
+            //builder.Root = new Flowchart
+            //{
+            //    Activities =
+            //    {
+            //        fanOut,
+            //        fanIn
+            //    },
+            //    Connections =
+            //    {
+            //        new(fanOut, fanIn),
+            //    },
+            //    Variables =
+            //    {
+            //        childOutput1,
+            //        childOutput2
+            //    }
+            //};
         }
     }
 }

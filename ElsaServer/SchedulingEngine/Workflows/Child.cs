@@ -42,7 +42,7 @@ namespace ElsaServer.SchedulingEngine.Workflows
                 var testNumbers = incomingList
                     .Select(p => p.TestNumber?.ToString() ?? "null");
 
-                return $"[Child] Received Test Numbers: {string.Join(", ", testNumbers)}";
+                return $"[CHILD] Received Test Numbers: {string.Join(", ", testNumbers)}";
             });
             printMessage.SetDisplayText("log input");
 
