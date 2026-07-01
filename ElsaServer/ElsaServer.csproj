@@ -5,6 +5,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DistributedLock.SqlServer" Version="1.0.7" />
     <PackageReference Include="Elsa" Version="3.7.1" />
     <PackageReference Include="Elsa.Alterations" Version="3.7.1" />
     <PackageReference Include="Elsa.Alterations.Core" Version="3.7.1" />
@@ -13,6 +14,7 @@
     <PackageReference Include="Elsa.AzureStorage" Version="3.5.3" />
     <PackageReference Include="Elsa.Caching" Version="3.7.1" />
     <PackageReference Include="Elsa.Caching.Distributed" Version="3.7.1" />
+    <PackageReference Include="Elsa.Caching.Distributed.MassTransit" Version="3.7.1" />
     <PackageReference Include="Elsa.Common" Version="3.7.1" />
     <PackageReference Include="Elsa.Expressions" Version="3.7.1" />
     <PackageReference Include="Elsa.Expressions.CSharp" Version="3.7.1" />
@@ -39,6 +41,7 @@
     <PackageReference Include="Elsa.Scheduling.Quartz.EFCore.SqlServer" Version="3.7.1" />
     <PackageReference Include="Elsa.ServiceBus.AzureServiceBus" Version="3.7.1" />
     <PackageReference Include="Elsa.ServiceBus.MassTransit.AzureServiceBus" Version="3.7.1" />
+    <PackageReference Include="Elsa.ServiceBus.MassTransit.RabbitMq" Version="3.7.1" />
     <PackageReference Include="Elsa.Studio.Core" Version="3.7.1" />
     <PackageReference Include="Elsa.Studio.DomInterop" Version="3.7.1" />
     <PackageReference Include="Elsa.Studio.Shared" Version="3.7.1" />
