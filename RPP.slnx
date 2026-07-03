@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="src/RPP.Core/RPP.Domain/RPP.Domain.csproj" />
+  <Project Path="src/RPP.Core/RPP.Application/RPP.Application.csproj" />
+  <Project Path="src/RPP.Infrastructure/RPP.Infrastructure.csproj" />
+  <Project Path="src/RPP.Orchestration/RPP.Orchestration.csproj" />
+  <Project Path="src/RPP.Api/RPP.Api.csproj" />
+  <Project Path="src/RPP.Presentation/ElsaServer/ElsaServer.csproj" />
+  <Project Path="src/RPP.Presentation/ElsaStudio/ElsaStudio.csproj" />
+</Solution>
