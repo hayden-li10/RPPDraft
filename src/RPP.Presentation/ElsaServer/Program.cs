@@ -39,6 +39,9 @@ services
         .UseMongoDb(mongoConnectionString)
         .UseWorkflowManagement(management => management.UseMongoDb())// Configure workflow management (definitions, instances)
         .UseWorkflowRuntime(runtime => runtime.UseMongoDb())// Configure workflow runtime (bookmarks, inbox, execution logs)
+
+
+    #region Distributed Clustering Configuration
         ////DISTRIBUTED RUNTIME & LOCKING (Ensures only 1 node ever resumes a specific instance!)
         //.UseWorkflowRuntime(runtime =>
         //{
@@ -67,6 +70,8 @@ services
         ////CLUSTERED QUARTZ SCHEDULER (Timers and alarms run only once across the 3 nodes)
         //.UseScheduling(scheduling => scheduling.UseQuartzScheduler())
         //.UseQuartz(quartz => quartz.UseSqlServer(sqlConnectionString))
+    #endregion
+
         .UseJavaScript()
         .UseLiquid()
         .UseCSharp()
