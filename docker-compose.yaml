@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # INFRASTRUCTURE DEPENDENCIES
+  # ==========================================
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourSecurePassword123!
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourSecurePassword123!", "-C", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"     
+      - "15672:15672"   
+
+  # ==========================================
+  # ELSA SERVER CLUSTER (3 Replicas)
+  # ==========================================
+  elsa-node-1:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - TZ=UTC
+      - ConnectionStrings__MongoDb=mongodb://mongodb:27017/elsa
+      - ConnectionStrings__SqlServer=Server=sqlserver;Database=ElsaCluster;User Id=sa;Password=YourSecurePassword123!;MultipleActiveResultSets=True;Encrypt=False;TrustServerCertificate=True;
+      - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672/
+      - QUARTZ__CLUSTERED=true
+      - QUARTZ__SCHEDULER__INSTANCEID=AUTO
+      - QUARTZ__THREADPOOL__THREADCOUNT=1
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Warning
+      - Logging__LogLevel__Elsa=Warning
+    ports:
+      - "8101:8080" 
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+
+  elsa-node-2:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - TZ=UTC
+      - ConnectionStrings__MongoDb=mongodb://mongodb:27017/elsa
+      - ConnectionStrings__SqlServer=Server=sqlserver;Database=ElsaCluster;User Id=sa;Password=YourSecurePassword123!;MultipleActiveResultSets=True;Encrypt=False;TrustServerCertificate=True;
+      - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672/
+      - QUARTZ__CLUSTERED=true
+      - QUARTZ__SCHEDULER__INSTANCEID=AUTO
+      - QUARTZ__THREADPOOL__THREADCOUNT=1
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Warning
+      - Logging__LogLevel__Elsa=Warning
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+
+  elsa-node-3:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - TZ=UTC
+      - ConnectionStrings__MongoDb=mongodb://mongodb:27017/elsa
+      - ConnectionStrings__SqlServer=Server=sqlserver;Database=ElsaCluster;User Id=sa;Password=YourSecurePassword123!;MultipleActiveResultSets=True;Encrypt=False;TrustServerCertificate=True;
+      - ConnectionStrings__RabbitMq=amqp://guest:guest@rabbitmq:5672/
+      - QUARTZ__CLUSTERED=true
+      - QUARTZ__SCHEDULER__INSTANCEID=AUTO
+      - QUARTZ__THREADPOOL__THREADCOUNT=1
+      - Logging__LogLevel__Microsoft.Hosting.Lifetime=Warning
+      - Logging__LogLevel__Elsa=Warning
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+
+  # ==========================================
+  # ELSA STUDIO UI
+  # ==========================================
+  elsa-studio:
+    image: elsaworkflows/elsa-studio-v3:latest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - HTTP_PORTS=8080 
+      - HTTP__BASEURL=http://localhost:8180 
+      - ELSASERVER__URL=http://localhost:8101/elsa/api 
+    ports:
+      - "8180:8080" 
+    depends_on:
+      - elsa-node-1

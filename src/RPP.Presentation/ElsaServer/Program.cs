@@ -1,25 +1,23 @@
-using Microsoft.AspNetCore.Mvc;
 using Elsa.Extensions;
 using Elsa.Persistence.EFCore.Extensions;
-using Elsa.Persistence.EFCore.Modules.Management;
-using Elsa.Persistence.EFCore.Modules.Runtime;
-using Elsa.Persistence.MongoDb;
 using Elsa.Persistence.MongoDb.Extensions;
 using Elsa.Persistence.MongoDb.Modules.Management;
 using Elsa.Persistence.MongoDb.Modules.Runtime;
-using Elsa.Studio.Shell;
-using Elsa.Workflows;
+using Elsa.ServiceBus.AzureServiceBus.Services;
 using Elsa.Workflows.Runtime.Distributed.Extensions;
 using Medallion.Threading.SqlServer;
-using RPP.Application.Interfaces;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver.Core.Clusters;
+using Quartz;
 using RPP.Application.BusinessEngine;
+using RPP.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseStaticWebAssets();
 
 var services = builder.Services;
 var configuration = builder.Configuration;
-//var connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=ElsaQuartzLocal;Integrated Security=True;MultipleActiveResultSets=True;Encrypt=False;TrustServerCertificate=True;";
 
 var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb")
     ?? throw new InvalidOperationException("Connection string 'MongoDb' not found.");
@@ -38,41 +36,35 @@ services
             identity.UseAdminUserProvider();
         })
         .UseDefaultAuthentication()
-        //.UseWorkflowRuntime(runtime => runtime.UseDistributedRuntime()) // Enable distributed runtime
-        //.UseScheduling(scheduling => scheduling.UseQuartzScheduler()) // Comment out to Disable Quartz scheduling
-        //.UseQuartz(quartz => quartz.UseSqlServer(connectionString)) // Comment out to Disable Quartz scheduling
         .UseMongoDb(mongoConnectionString)
         .UseWorkflowManagement(management => management.UseMongoDb())// Configure workflow management (definitions, instances)
         .UseWorkflowRuntime(runtime => runtime.UseMongoDb())// Configure workflow runtime (bookmarks, inbox, execution logs)
+        ////DISTRIBUTED RUNTIME & LOCKING (Ensures only 1 node ever resumes a specific instance!)
         //.UseWorkflowRuntime(runtime =>
         //{
-        //    runtime.UseMongoDb(); // Keep state in Mongo
-
-        //    // Enable Distributed Runtime
+        //    runtime.UseMongoDb();
         //    runtime.UseDistributedRuntime();
-
-        //    // Use SQL Server for Distributed Locking (prevents duplicate processing!)
         //    runtime.DistributedLockProvider = _ => new SqlDistributedSynchronizationProvider(sqlConnectionString);
+        //    runtime.UseMassTransitDispatcher();
         //})
+        ////DISTRIBUTED CACHE SYNC (Clears RAM caches across all 3 nodes on updates)
         //.UseDistributedCache(distributedCaching =>
         //{
         //    distributedCaching.UseMassTransit();
         //})
+        ////MASSTRANSIT & RABBITMQ(Handles clustered messaging & worker execution dispatch)
         //.UseMassTransit(massTransit =>
         //{
-        //    // Connect to RabbitMQ container
         //    massTransit.UseRabbitMq(rabbitConnectionString, rabbit =>
         //    {
-        //        // Tune transport parameters for clustered performance
         //        rabbit.ConfigureTransportBus = (context, bus) =>
         //        {
-        //            bus.PrefetchCount = 50;
-        //            bus.Durable = true;
-        //            bus.AutoDelete = false;
-        //            bus.ConcurrentMessageLimit = 32;
+        //            bus.PrefetchCount = 1;
+        //            bus.ConcurrentMessageLimit = 1;
         //        };
         //    });
         //})
+        ////CLUSTERED QUARTZ SCHEDULER (Timers and alarms run only once across the 3 nodes)
         //.UseScheduling(scheduling => scheduling.UseQuartzScheduler())
         //.UseQuartz(quartz => quartz.UseSqlServer(sqlConnectionString))
         .UseJavaScript()
@@ -103,7 +95,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//UseHttpsRedirection must be disabled to allow Docker HTTP-only network
+app.UseHttpsRedirection();// diable this for local distributed environment
+
 app.MapStaticAssets();
 app.UseRouting();
 app.UseCors();
