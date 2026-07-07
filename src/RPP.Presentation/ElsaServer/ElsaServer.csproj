@@ -6,13 +6,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DistributedLock.SqlServer" Version="1.0.7" />
+    <PackageReference Include="DistributedLock.Redis" Version="1.1.1" />
     <PackageReference Include="Elsa" Version="3.7.1" />
     <PackageReference Include="Elsa.Alterations" Version="3.7.1" />
     <PackageReference Include="Elsa.Alterations.Core" Version="3.7.1" />
     <PackageReference Include="Elsa.Api.Client" Version="3.7.1" />
     <PackageReference Include="Elsa.Api.Common" Version="3.7.1" />
-    <PackageReference Include="Elsa.AzureStorage" Version="3.5.3" />
     <PackageReference Include="Elsa.Caching" Version="3.7.1" />
     <PackageReference Include="Elsa.Caching.Distributed" Version="3.7.1" />
     <PackageReference Include="Elsa.Caching.Distributed.MassTransit" Version="3.7.1" />
@@ -37,7 +36,7 @@
     <PackageReference Include="Elsa.Resilience.Core" Version="3.7.1" />
     <PackageReference Include="Elsa.Retention" Version="3.7.1" />
     <PackageReference Include="Elsa.Scheduling" Version="3.7.1" />
-    <PackageReference Include="Elsa.Scheduling.Quartz.EFCore.SqlServer" Version="3.7.1" />
+    <PackageReference Include="Elsa.Scheduling.Hangfire" Version="3.7.1" />
     <PackageReference Include="Elsa.ServiceBus.AzureServiceBus" Version="3.7.1" />
     <PackageReference Include="Elsa.ServiceBus.MassTransit.AzureServiceBus" Version="3.7.1" />
     <PackageReference Include="Elsa.ServiceBus.MassTransit.RabbitMq" Version="3.7.1" />
@@ -57,8 +56,10 @@
     <PackageReference Include="Elsa.Workflows.Management" Version="3.7.1" />
     <PackageReference Include="Elsa.Workflows.Runtime" Version="3.7.1" />
     <PackageReference Include="Elsa.Workflows.Runtime.Distributed" Version="3.7.1" />
+    <PackageReference Include="Hangfire.Mongo" Version="1.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.9" />
     <PackageReference Include="SharpCompress" Version="0.49.1" />
+    <PackageReference Include="StackExchange.Redis" Version="3.0.11" />
   </ItemGroup>
 
   <PropertyGroup>

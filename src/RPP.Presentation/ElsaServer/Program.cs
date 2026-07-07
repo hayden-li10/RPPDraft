@@ -3,15 +3,16 @@ using Elsa.Persistence.EFCore.Extensions;
 using Elsa.Persistence.MongoDb.Extensions;
 using Elsa.Persistence.MongoDb.Modules.Management;
 using Elsa.Persistence.MongoDb.Modules.Runtime;
-using Elsa.ServiceBus.AzureServiceBus.Services;
 using Elsa.Workflows.Runtime.Distributed.Extensions;
-using Medallion.Threading.SqlServer;
-using Microsoft.AspNetCore.Components;
+using Hangfire;
+using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
+using Medallion.Threading.Redis;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver.Core.Clusters;
-using Quartz;
 using RPP.Application.BusinessEngine;
 using RPP.Application.Interfaces;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseStaticWebAssets();
@@ -22,12 +23,36 @@ var configuration = builder.Configuration;
 var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb")
     ?? throw new InvalidOperationException("Connection string 'MongoDb' not found.");
 
-var sqlConnectionString = builder.Configuration.GetConnectionString("SqlServer")
-    ?? "Data Source=(localdb)\\MSSQLLocalDB;Database=ElsaQuartzLocal;Integrated Security=True;MultipleActiveResultSets=True;Encrypt=False;TrustServerCertificate=True;";
-
 var rabbitConnectionString = builder.Configuration.GetConnectionString("RabbitMq")
     ?? "amqp://guest:guest@localhost:5672/";
 
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
+    ?? "localhost:6379";
+var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
+
+#region Distributed Clustering Configuration
+//builder.Services.AddHangfire(config =>
+//{
+//    config.UseSimpleAssemblyNameTypeSerializer()
+//          .UseRecommendedSerializerSettings()
+//          .UseMongoStorage(mongoConnectionString, "ElsaHangfireDB", new MongoStorageOptions
+//          {
+//              MigrationOptions = new MongoMigrationOptions
+//              {
+//                  MigrationStrategy = new MigrateMongoMigrationStrategy(),
+//                  BackupStrategy = new CollectionMongoBackupStrategy()
+//              },
+//              Prefix = "hangfire",
+//              CheckConnection = true,
+//              //Enables instant job handling on standalone local MongoDB
+//              CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection
+//          });
+//});
+//builder.Services.AddHangfireServer(options =>
+//{
+//    options.WorkerCount = 1;
+//});
+#endregion
 services
     .AddElsa(elsa => elsa
         .UseIdentity(identity =>
@@ -39,15 +64,13 @@ services
         .UseMongoDb(mongoConnectionString)
         .UseWorkflowManagement(management => management.UseMongoDb())// Configure workflow management (definitions, instances)
         .UseWorkflowRuntime(runtime => runtime.UseMongoDb())// Configure workflow runtime (bookmarks, inbox, execution logs)
-
-
     #region Distributed Clustering Configuration
         ////DISTRIBUTED RUNTIME & LOCKING (Ensures only 1 node ever resumes a specific instance!)
         //.UseWorkflowRuntime(runtime =>
         //{
         //    runtime.UseMongoDb();
         //    runtime.UseDistributedRuntime();
-        //    runtime.DistributedLockProvider = _ => new SqlDistributedSynchronizationProvider(sqlConnectionString);
+        //    runtime.DistributedLockProvider = _ => new RedisDistributedSynchronizationProvider(redisConnection.GetDatabase());
         //    runtime.UseMassTransitDispatcher();
         //})
         ////DISTRIBUTED CACHE SYNC (Clears RAM caches across all 3 nodes on updates)
@@ -67,9 +90,8 @@ services
         //        };
         //    });
         //})
-        ////CLUSTERED QUARTZ SCHEDULER (Timers and alarms run only once across the 3 nodes)
-        //.UseScheduling(scheduling => scheduling.UseQuartzScheduler())
-        //.UseQuartz(quartz => quartz.UseSqlServer(sqlConnectionString))
+        ////CLUSTERED UseHangfire SCHEDULER (Timers and alarms run only once across the 3 nodes)
+        //.UseScheduling(scheduling => scheduling.UseHangfireScheduler())
     #endregion
 
         .UseJavaScript()
