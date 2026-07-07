@@ -28,31 +28,33 @@ var rabbitConnectionString = builder.Configuration.GetConnectionString("RabbitMq
 
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
     ?? "localhost:6379";
-var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
 
 #region Distributed Clustering Configuration
-//builder.Services.AddHangfire(config =>
-//{
-//    config.UseSimpleAssemblyNameTypeSerializer()
-//          .UseRecommendedSerializerSettings()
-//          .UseMongoStorage(mongoConnectionString, "ElsaHangfireDB", new MongoStorageOptions
-//          {
-//              MigrationOptions = new MongoMigrationOptions
-//              {
-//                  MigrationStrategy = new MigrateMongoMigrationStrategy(),
-//                  BackupStrategy = new CollectionMongoBackupStrategy()
-//              },
-//              Prefix = "hangfire",
-//              CheckConnection = true,
-//              //Enables instant job handling on standalone local MongoDB
-//              CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection
-//          });
-//});
-//builder.Services.AddHangfireServer(options =>
-//{
-//    options.WorkerCount = 1;
-//});
+//var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
 #endregion
+
+builder.Services.AddHangfire(config =>
+{
+    config.UseSimpleAssemblyNameTypeSerializer()
+          .UseRecommendedSerializerSettings()
+          .UseMongoStorage(mongoConnectionString, "ElsaHangfireDB", new MongoStorageOptions
+          {
+              MigrationOptions = new MongoMigrationOptions
+              {
+                  MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                  BackupStrategy = new CollectionMongoBackupStrategy()
+              },
+              Prefix = "hangfire",
+              CheckConnection = true,
+              //Enables instant job handling on standalone local MongoDB
+              CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection
+          });
+});
+builder.Services.AddHangfireServer(options =>
+{
+    options.WorkerCount = 1;
+});
+
 services
     .AddElsa(elsa => elsa
         .UseIdentity(identity =>
@@ -90,9 +92,9 @@ services
         //        };
         //    });
         //})
-        ////CLUSTERED UseHangfire SCHEDULER (Timers and alarms run only once across the 3 nodes)
-        //.UseScheduling(scheduling => scheduling.UseHangfireScheduler())
     #endregion
+        .UseScheduling(scheduling => scheduling.UseHangfireScheduler())
+
 
         .UseJavaScript()
         .UseLiquid()
@@ -124,6 +126,8 @@ if (!app.Environment.IsDevelopment())
 
 //UseHttpsRedirection must be disabled to allow Docker HTTP-only network
 app.UseHttpsRedirection();// diable this for local distributed environment
+
+app.UseHangfireDashboard();//http://localhost:{StudioPort}/hangfire
 
 app.MapStaticAssets();
 app.UseRouting();
