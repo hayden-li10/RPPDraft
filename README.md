@@ -5,6 +5,8 @@ Run the solution:
 2. In root, run this command: dotnet run --urls https://localhost:5001
 
 3. Open https://localhost:5001 in browser
+  
+4. username: admin   password: password
 
 
 Deploy distributed clustering environment:
