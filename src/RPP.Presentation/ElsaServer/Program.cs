@@ -127,8 +127,7 @@ if (!app.Environment.IsDevelopment())
 //UseHttpsRedirection must be disabled to allow Docker HTTP-only network
 app.UseHttpsRedirection();// diable this for local distributed environment
 
-app.UseHangfireDashboard();//http://localhost:{StudioPort}/hangfire
-
+app.UseHangfireDashboard();//http://localhost:{ElsaServerPort}/hangfire
 app.MapStaticAssets();
 app.UseRouting();
 app.UseCors();

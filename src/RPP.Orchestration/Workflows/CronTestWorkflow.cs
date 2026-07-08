@@ -12,17 +12,17 @@ public class CronTestWorkflow : WorkflowBase
         builder.Name = "Test: Cron";
         builder.Description = "Tests if croncorrectly triggers recurrent jobs without double-firing.";
 
-        builder.Root = new Sequence
-        {
-            Activities =
-            {
-                new Cron
-                {
-                    CronExpression = new("*/1 * * * *"),
-                    CanStartWorkflow = true
-                },
-                new WriteLine("Recurrent cron workflow is triggered")
-            }
-        };
+        //builder.Root = new Sequence
+        //{
+        //    Activities =
+        //    {
+        //        new Cron
+        //        {
+        //            CronExpression = new("*/1 * * * *"),
+        //            CanStartWorkflow = true
+        //        },
+        //        new WriteLine("Recurrent cron workflow is triggered every minute")
+        //    }
+        //};
     }
 }

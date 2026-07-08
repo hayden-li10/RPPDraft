@@ -12,17 +12,17 @@ public class TimerTestWorkflow : WorkflowBase
         builder.Name = "Test: 30-Second Timer";
         builder.Description = "Tests if elsa correctly triggers recurrent jobs every 30 seconds.";
 
-        builder.Root = new Sequence
-        {
-            Activities =
-            {
-                new Elsa.Scheduling.Activities.Timer
-                {
-                    Interval = new(TimeSpan.FromSeconds(30)),
-                    CanStartWorkflow = true
-                },
-                new WriteLine("Recurrent workflow triggered by elsa every 30 seconds!")
-            }
-        };
+        //builder.Root = new Sequence
+        //{
+        //    Activities =
+        //    {
+        //        new Elsa.Scheduling.Activities.Timer
+        //        {
+        //            Interval = new(TimeSpan.FromSeconds(30)),
+        //            CanStartWorkflow = true
+        //        },
+        //        new WriteLine("Recurrent workflow triggered by timer every 30 seconds!")
+        //    }
+        //};
     }
 }
