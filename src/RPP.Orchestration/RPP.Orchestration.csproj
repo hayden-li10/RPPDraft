@@ -28,6 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RPP.Core\RPP.Application\RPP.Application.csproj" />
+    <ProjectReference Include="..\RPP.Core\RPP.Core.csproj" />
   </ItemGroup>
 </Project>

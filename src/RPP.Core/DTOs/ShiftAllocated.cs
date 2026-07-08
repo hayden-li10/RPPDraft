@@ -1,6 +1,6 @@
-﻿namespace RPP.Application.DTOs
+﻿namespace RPP.Core.DTOs
 {
-    public class ShiftOutputPayload
+    public class ShiftAllocated
     {
         public string? ShiftId { get; init; }
         public string? DepotId { get; init; }

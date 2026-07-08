@@ -1,8 +1,8 @@
-﻿using RPP.Application.DTOs;
-using RPP.Application.Interfaces;
+﻿using RPP.Core.DTOs;
+using RPP.Core.Interfaces;
 using System.Collections.Generic;
 
-namespace RPP.Application.BusinessEngine
+namespace RPP.Core.BusinessEngine
 {
     public class ShiftOutputBuilderService : IShiftOutputBuilderService
     {

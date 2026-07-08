@@ -1,7 +1,7 @@
 ﻿using Elsa.Workflows;
 using Elsa.Workflows.Activities;
 using Elsa.Workflows.Runtime.Activities;
-using RPP.Application.DTOs;
+using RPP.Core.DTOs;
 using RPP.Orchestration.Activities;
 namespace RPP.Orchestration.Workflows
 {

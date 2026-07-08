@@ -12,8 +12,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RPP.Application.BusinessEngine;
-using RPP.Application.Interfaces;
+using RPP.Core.BusinessEngine;
+using RPP.Core.Interfaces;
 using RPP.Orchestration.AssemblyMarker;
 using StackExchange.Redis;
 

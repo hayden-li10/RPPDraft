@@ -5,7 +5,7 @@ using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Management.Activities.SetOutput;
 using Elsa.Workflows.Memory;
 using Elsa.Workflows.Models;
-using RPP.Application.DTOs;
+using RPP.Core.DTOs;
 using RPP.Orchestration.Activities;
 namespace RPP.Orchestration.Workflows
 {

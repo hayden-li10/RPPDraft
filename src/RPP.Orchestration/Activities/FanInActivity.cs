@@ -1,7 +1,7 @@
 ﻿using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
-using RPP.Application.DTOs;
+using RPP.Core.DTOs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;

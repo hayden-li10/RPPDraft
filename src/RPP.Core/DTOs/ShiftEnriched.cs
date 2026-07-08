@@ -1,6 +1,6 @@
-﻿namespace RPP.Application.DTOs
+﻿namespace RPP.Core.DTOs
 {
-    public class ShiftAllocated
+    public class ShiftEnriched
     {
         public string? ShiftId { get; init; }
         public string? DepotId { get; init; }

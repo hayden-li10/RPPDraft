@@ -2,8 +2,7 @@
 using Elsa.Workflows.Activities.Flowchart.Activities;
 using Elsa.Workflows.Models;
 using RPP.Orchestration.Activities;
-//using Elsa.Scheduling.Activities.Timer;
-using RPP.Application.DTOs;
+using RPP.Core.DTOs;
 namespace RPP.Orchestration.Workflows
 {
     public class PipelineWorkflow : WorkflowBase

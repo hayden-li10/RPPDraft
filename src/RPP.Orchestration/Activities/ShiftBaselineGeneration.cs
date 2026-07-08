@@ -2,8 +2,8 @@ using Elsa.Extensions;
 using Elsa.Workflows;
 using Elsa.Workflows.Attributes;
 using Elsa.Workflows.Models;
-using RPP.Application.DTOs;
-using RPP.Application.Interfaces;
+using RPP.Core.DTOs;
+using RPP.Core.Interfaces;
 
 namespace RPP.Orchestration.Activities;
 

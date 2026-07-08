@@ -1,4 +1,4 @@
-﻿namespace RPP.Application.DTOs
+﻿namespace RPP.Core.DTOs
 {
     public class ModulePayload
     {
